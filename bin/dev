@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Run the Procfile using foreman (or use 'heroku local')
+exec foreman start -f Procfile.dev

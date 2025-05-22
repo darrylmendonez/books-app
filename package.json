@@ -1,0 +1,13 @@
+{
+  "name": "books_crud_app",
+  "private": true,
+  "dependencies": {
+    "esbuild": "^0.19.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "scripts": {
+    "build": "esbuild app/javascript/*.* --bundle --outdir=app/assets/builds --sourcemap --loader:.js=jsx",
+    "build:watch": "yarn build --watch"
+  }
+}
