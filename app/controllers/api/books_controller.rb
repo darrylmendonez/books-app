@@ -23,7 +23,7 @@ class Api::BooksController < ApplicationController
     if book.save
       render json: book, status: :created
     else
-      render json: book.errors, status: unprocessable_entity
+      render json: book.errors, status: :unprocessable_entity
     end
   end
 
@@ -33,7 +33,7 @@ class Api::BooksController < ApplicationController
     if @book.update(book_params)
       render json: @book
     else
-      render json: { errors: @book.errors.full_messages }, status: unprocessable_entity
+      render json: { errors: @book.errors }, status: :unprocessable_entity
     end
   end
 
