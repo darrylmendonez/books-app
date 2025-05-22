@@ -7,20 +7,17 @@ export const BookForm = ({ book, onSaved }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (book) {
-            setTitle(book.title);
-            setAuthor(book.author);
-            setDescription(book.description);
-        } else {
-            setTitle("");
-            setAuthor("");
-            setDescription("");
-        }
+        setTitle(book?.title || '');
+        setAuthor(book?.author || '');
+        setDescription(book?.description || '');
     }, [book]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        const method = book ? 'PATCH' : 'POST'
+        const url = book
+            ? `/api/books/${book.id}`
+            : '/api/books';
         const payload = {
             book:
                 {
@@ -29,11 +26,10 @@ export const BookForm = ({ book, onSaved }) => {
                     description
                 }
         };
-
         console.log(' payload :>> ', payload);
 
-        const res = await fetch("/api/books", {
-            method: "POST",
+        const res = await fetch(url, {
+            method,
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",

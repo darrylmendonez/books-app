@@ -23582,18 +23582,14 @@
     const [description, setDescription] = (0, import_react2.useState)("");
     const [error, setError] = (0, import_react2.useState)(null);
     (0, import_react2.useEffect)(() => {
-      if (book) {
-        setTitle(book.title);
-        setAuthor(book.author);
-        setDescription(book.description);
-      } else {
-        setTitle("");
-        setAuthor("");
-        setDescription("");
-      }
+      setTitle(book?.title || "");
+      setAuthor(book?.author || "");
+      setDescription(book?.description || "");
     }, [book]);
     const handleSubmit = async (e) => {
       e.preventDefault();
+      const method = book ? "PATCH" : "POST";
+      const url = book ? `/api/books/${book.id}` : "/api/books";
       const payload = {
         book: {
           title,
@@ -23602,8 +23598,8 @@
         }
       };
       console.log(" payload :>> ", payload);
-      const res = await fetch("/api/books", {
-        method: "POST",
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json"

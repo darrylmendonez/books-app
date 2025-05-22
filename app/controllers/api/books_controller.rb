@@ -29,11 +29,11 @@ class Api::BooksController < ApplicationController
 
   # PATCH/PUT /books/1
   def update
-    book = Book.find(params[:id])
-    if book.update(book_params)
-      render json: book
+    @book = Book.find(params[:id])
+    if @book.update(book_params)
+      render json: @book
     else
-      render json: { errors: book.errors.full_messages }, status: unprocessable_entity
+      render json: { errors: @book.errors.full_messages }, status: unprocessable_entity
     end
   end
 
