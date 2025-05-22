@@ -1,0 +1,2 @@
+web: RUBYOPT='-rlogger' bin/rails server
+js: yarn build --watch
