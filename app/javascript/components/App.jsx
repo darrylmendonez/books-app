@@ -5,29 +5,33 @@ import { BookForm } from "./BookForm"
 const App = () => {
     const [books, setBooks] = useState([]);
     const [selectedBook, setSelectedBook] = useState(null);
+    const [error, setError] = useState(null);
 
     const fetchBooks = async () => {
+        console.log('fetchBooks fired');
         const res =  await fetch("/api/books");
         const data = await res.json();
         setBooks(data);
+        console.log('Books fetched');
+        console.log('Books: ', data);
     }
 
     const handleDelete = async  (id) => {
-        const confirmed = window.confirm("Are you sure you want to delete this book?");
-        if (!confirmed) return;
-
-        const res = await fetch(`/books/${id}`, {
-            method: "DELETE",
+        console.log("Deleting book with ID:", id);
+        fetch(`/api/books/${id}`, {
+            method: 'DELETE',
             headers: {
-                Accept: "application/json",
+                Accept: 'application/json',
             },
-        });
-
-        if (res.ok) {
-            setBooks((prev) => prev.filter((book) => book.id !== id));
-        } else {
-            console.error("Failed to delete book");
-        }
+        })
+            .then((response) => {
+                fetchBooks(); // Refresh the list
+                console.log(`Book with ${id} has been deleted`);
+            })
+            .catch((err) => {
+                setError(err.message)
+                console.error(`Delete error: ${err}`)
+            });
     };
 
     const handleEdit = (book) => {
@@ -47,7 +51,7 @@ const App = () => {
         <div style={{ padding: "1rem"}}>
             <h1>Book CRUD App</h1>
             <BookForm book={selectedBook} onSaved={handleBookSaved} onBookCreated={fetchBooks} />
-            <BooksList books={books} onDelete={handleDelete} onEdit={handleEdit}/>
+            <BooksList books={books} onDelete={handleDelete} onEdit={handleEdit} setBooks={setBooks} />
         </div>
     );
 };

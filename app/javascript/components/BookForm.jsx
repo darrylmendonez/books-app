@@ -4,6 +4,7 @@ export const BookForm = ({ book, onSaved }) => {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [description, setDescription] = useState("");
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (book) {
@@ -18,7 +19,6 @@ export const BookForm = ({ book, onSaved }) => {
     }, [book]);
 
     const handleSubmit = async (e) => {
-        console.log('handleSubmit fired');
         e.preventDefault();
 
         const payload = {
@@ -54,12 +54,14 @@ export const BookForm = ({ book, onSaved }) => {
                 return;
             }
             console.error("Failed to save book:", err.errors);
+            setError(err.errors);
         }
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <h2>{book ? "Edit Book" : "Add Book"}</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <div>
                 <input
                     value={title}

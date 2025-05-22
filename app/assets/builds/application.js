@@ -1084,7 +1084,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState3(initialState) {
+          function useState4(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1096,7 +1096,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect3(create, deps) {
+          function useEffect4(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1879,7 +1879,7 @@
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect3;
+          exports.useEffect = useEffect4;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
@@ -1887,7 +1887,7 @@
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef;
-          exports.useState = useState3;
+          exports.useState = useState4;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -23561,7 +23561,18 @@
 
   // app/javascript/components/BookList.jsx
   var import_react = __toESM(require_react());
-  var BooksList = ({ books, onDelete, onEdit }) => /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("h2", null, "All Books"), /* @__PURE__ */ import_react.default.createElement("ul", null, books.map((book) => /* @__PURE__ */ import_react.default.createElement("li", { key: book.id }, /* @__PURE__ */ import_react.default.createElement("strong", null, book.title), " by ", book.author, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => onEdit(book), style: { marginLeft: "1rem" } }, "Edit"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => onDelete(book.id), style: { marginLeft: "0.5rem" } }, "Delete")))));
+  var BooksList = ({ books, onDelete, onEdit, setBooks }) => {
+    const [error, setError] = (0, import_react.useState)(null);
+    (0, import_react.useEffect)(() => {
+      fetch("/api/books").then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch books");
+        }
+        return response.json();
+      }).then((data) => setBooks(data)).catch((err) => setError(err.message));
+    }, []);
+    return /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement("h2", null, "All Books"), error && /* @__PURE__ */ import_react.default.createElement("p", { style: { color: "red" } }, error), /* @__PURE__ */ import_react.default.createElement("ul", null, books.map((book) => /* @__PURE__ */ import_react.default.createElement("li", { key: book.id }, /* @__PURE__ */ import_react.default.createElement("strong", null, book.title), " by ", book.author, /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => onEdit(book), style: { marginLeft: "1rem" } }, "Edit"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: () => onDelete(book.id), style: { marginLeft: "0.5rem" } }, "Delete")))));
+  };
 
   // app/javascript/components/BookForm.jsx
   var import_react2 = __toESM(require_react());
@@ -23569,6 +23580,7 @@
     const [title, setTitle] = (0, import_react2.useState)("");
     const [author, setAuthor] = (0, import_react2.useState)("");
     const [description, setDescription] = (0, import_react2.useState)("");
+    const [error, setError] = (0, import_react2.useState)(null);
     (0, import_react2.useEffect)(() => {
       if (book) {
         setTitle(book.title);
@@ -23581,7 +23593,6 @@
       }
     }, [book]);
     const handleSubmit = async (e) => {
-      console.log("handleSubmit fired");
       e.preventDefault();
       const payload = {
         book: {
@@ -23613,9 +23624,10 @@
           return;
         }
         console.error("Failed to save book:", err.errors);
+        setError(err.errors);
       }
     };
-    return /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react2.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement(
+    return /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react2.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), error && /* @__PURE__ */ import_react2.default.createElement("p", { style: { color: "red" } }, error), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement(
       "input",
       {
         value: title,
@@ -23644,26 +23656,29 @@
   var App = () => {
     const [books, setBooks] = (0, import_react3.useState)([]);
     const [selectedBook, setSelectedBook] = (0, import_react3.useState)(null);
+    const [error, setError] = (0, import_react3.useState)(null);
     const fetchBooks = async () => {
+      console.log("fetchBooks fired");
       const res = await fetch("/api/books");
       const data = await res.json();
       setBooks(data);
+      console.log("Books fetched");
+      console.log("Books: ", data);
     };
     const handleDelete = async (id) => {
-      const confirmed = window.confirm("Are you sure you want to delete this book?");
-      if (!confirmed)
-        return;
-      const res = await fetch(`/books/${id}`, {
+      console.log("Deleting book with ID:", id);
+      fetch(`/api/books/${id}`, {
         method: "DELETE",
         headers: {
           Accept: "application/json"
         }
+      }).then((response) => {
+        fetchBooks();
+        console.log(`Book with ${id} has been deleted`);
+      }).catch((err) => {
+        setError(err.message);
+        console.error(`Delete error: ${err}`);
       });
-      if (res.ok) {
-        setBooks((prev) => prev.filter((book) => book.id !== id));
-      } else {
-        console.error("Failed to delete book");
-      }
     };
     const handleEdit = (book) => {
       setSelectedBook(book);
@@ -23675,7 +23690,7 @@
     (0, import_react3.useEffect)(() => {
       fetchBooks();
     }, []);
-    return /* @__PURE__ */ import_react3.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react3.default.createElement("h1", null, "Book CRUD App"), /* @__PURE__ */ import_react3.default.createElement(BookForm, { book: selectedBook, onSaved: handleBookSaved, onBookCreated: fetchBooks }), /* @__PURE__ */ import_react3.default.createElement(BooksList, { books, onDelete: handleDelete, onEdit: handleEdit }));
+    return /* @__PURE__ */ import_react3.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react3.default.createElement("h1", null, "Book CRUD App"), /* @__PURE__ */ import_react3.default.createElement(BookForm, { book: selectedBook, onSaved: handleBookSaved, onBookCreated: fetchBooks }), /* @__PURE__ */ import_react3.default.createElement(BooksList, { books, onDelete: handleDelete, onEdit: handleEdit, setBooks }));
   };
   var App_default = App;
 
