@@ -23588,8 +23588,11 @@
     }, [book]);
     const handleSubmit = async (e) => {
       e.preventDefault();
+      console.log("book: ", book);
       const method = book ? "PATCH" : "POST";
-      const url = book ? `/api/books/${book.id}` : "/api/books";
+      console.log("method: ", method);
+      const url = book ? `/api/books/${book.id}` : "/api/books/";
+      console.log("url: ", url);
       const payload = {
         book: {
           title,

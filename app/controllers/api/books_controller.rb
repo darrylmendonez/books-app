@@ -19,7 +19,7 @@ class Api::BooksController < ApplicationController
 
   # POST /books
   def create
-    book = Book.new
+    book = Book.new(book_params)
     if book.save
       render json: book, status: :created
     else
