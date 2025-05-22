@@ -1,6 +1,6 @@
 import React, {useState, useEffect } from "react";
 
-export const BookForm = ({ book, onSaved }) => {
+export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [description, setDescription] = useState("");
@@ -11,6 +11,11 @@ export const BookForm = ({ book, onSaved }) => {
         setAuthor(book?.author || '');
         setDescription(book?.description || '');
     }, [book]);
+
+    const handleBookSaved = () => {
+        setSelectedBook(null);
+        fetchBooks();
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -41,7 +46,7 @@ export const BookForm = ({ book, onSaved }) => {
         });
         console.log('res -> ', res)
         if (res.ok) {
-            onSaved();
+            handleBookSaved();
         } else {
             let err;
             try {
