@@ -4,7 +4,8 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [description, setDescription] = useState("");
-    const [error, setError] = useState(null);
+    const [errors, setErrors] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         setTitle(book?.title || '');
@@ -19,7 +20,9 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('book: ', book);
+        setSubmitting(true);
+        setErrors(null);
+
         const method = book ? 'PATCH' : 'POST'
         console.log('method: ', method);
         const url = book
@@ -34,38 +37,37 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
                     description
                 }
         };
-        console.log(' payload :>> ', payload);
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
 
-        const res = await fetch(url, {
-            method,
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify(payload),
-        });
-        console.log('res -> ', res)
-        if (res.ok) {
-            handleBookSaved();
-        } else {
-            let err;
-            try {
-                err = await res.json();
-            } catch (e) {
-                console.error("Failed to parse error response:", e);
-                const text = await res.text();
-                console.error("Raw response body:", text);
-                return;
+            if (res.ok) {
+                handleBookSaved();
+                setTitle('');
+                setAuthor('');
+                setDescription('');
+            } else {
+                const data = await res.json();
+                setErrors(data.errors || "Failed to save book");
             }
-            console.error("Failed to save book:", err.errors);
-            setError(err.errors);
+        } catch (e) {
+            console.error("Submission error: ", e)
+            setErrors("Unexpected error occurred");
+        } finally {
+            setSubmitting((false));
         }
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <h2>{book ? "Edit Book" : "Add Book"}</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {errors?.map((error, idx) => <p key={`${error}-${idx}`} style={{ color: 'red' }}>{error}</p>)}
             <div>
                 <input
                     value={title}
@@ -88,7 +90,7 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </div>
-            <button type="submit">{book ? "Update Book" : "Add Book"}</button>
+            <button disabled={submitting} type="submit">{book ? "Update Book" : "Add Book"}</button>
         </form>
     )
 }

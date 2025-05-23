@@ -23598,7 +23598,8 @@
     const [title, setTitle] = (0, import_react2.useState)("");
     const [author, setAuthor] = (0, import_react2.useState)("");
     const [description, setDescription] = (0, import_react2.useState)("");
-    const [error, setError] = (0, import_react2.useState)(null);
+    const [errors, setErrors] = (0, import_react2.useState)(null);
+    const [submitting, setSubmitting] = (0, import_react2.useState)(false);
     (0, import_react2.useEffect)(() => {
       setTitle(book?.title || "");
       setAuthor(book?.author || "");
@@ -23610,7 +23611,8 @@
     };
     const handleSubmit = async (e) => {
       e.preventDefault();
-      console.log("book: ", book);
+      setSubmitting(true);
+      setErrors(null);
       const method = book ? "PATCH" : "POST";
       console.log("method: ", method);
       const url = book ? `/api/books/${book.id}` : "/api/books/";
@@ -23622,33 +23624,32 @@
           description
         }
       };
-      console.log(" payload :>> ", payload);
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-      console.log("res -> ", res);
-      if (res.ok) {
-        handleBookSaved();
-      } else {
-        let err;
-        try {
-          err = await res.json();
-        } catch (e2) {
-          console.error("Failed to parse error response:", e2);
-          const text = await res.text();
-          console.error("Raw response body:", text);
-          return;
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          handleBookSaved();
+          setTitle("");
+          setAuthor("");
+          setDescription("");
+        } else {
+          const data = await res.json();
+          setErrors(data.errors || "Failed to save book");
         }
-        console.error("Failed to save book:", err.errors);
-        setError(err.errors);
+      } catch (e2) {
+        console.error("Submission error: ", e2);
+        setErrors("Unexpected error occurred");
+      } finally {
+        setSubmitting(false);
       }
     };
-    return /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react2.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), error && /* @__PURE__ */ import_react2.default.createElement("p", { style: { color: "red" } }, error), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement(
+    return /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react2.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), errors?.map((error, idx) => /* @__PURE__ */ import_react2.default.createElement("p", { key: `${error}-${idx}`, style: { color: "red" } }, error)), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement(
       "input",
       {
         value: title,
@@ -23670,25 +23671,30 @@
         value: description,
         onChange: (e) => setDescription(e.target.value)
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("button", { type: "submit" }, book ? "Update Book" : "Add Book"));
+    )), /* @__PURE__ */ import_react2.default.createElement("button", { disabled: submitting, type: "submit" }, book ? "Update Book" : "Add Book"));
   };
 
   // app/javascript/components/App.jsx
   var App = () => {
     const [books, setBooks] = (0, import_react3.useState)([]);
     const [selectedBook, setSelectedBook] = (0, import_react3.useState)(null);
+    const [loading, setLoading] = (0, import_react3.useState)(false);
     const fetchBooks = async () => {
-      console.log("fetchBooks fired");
-      const res = await fetch("/api/books");
-      const data = await res.json();
-      setBooks(data);
-      console.log("Books fetched");
-      console.log("Books: ", data);
+      setLoading(true);
+      try {
+        const res = await fetch("/api/books");
+        const data = await res.json();
+        setBooks(data);
+      } catch (err) {
+        console.error("Failed to fetch books: ", err);
+      } finally {
+        setLoading(false);
+      }
     };
     (0, import_react3.useEffect)(() => {
       fetchBooks();
     }, []);
-    return /* @__PURE__ */ import_react3.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react3.default.createElement("h1", null, "Book CRUD App"), /* @__PURE__ */ import_react3.default.createElement(BookForm, { book: selectedBook, fetchBooks, setSelectedBook }), /* @__PURE__ */ import_react3.default.createElement(BooksList, { books, fetchBooks, setBooks, setSelectedBook }));
+    return /* @__PURE__ */ import_react3.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react3.default.createElement("h1", null, "Book CRUD App"), loading ? /* @__PURE__ */ import_react3.default.createElement("p", null, "Loading books...") : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(BookForm, { book: selectedBook, fetchBooks, setSelectedBook }), /* @__PURE__ */ import_react3.default.createElement(BooksList, { books, fetchBooks, setBooks, setSelectedBook })));
   };
   var App_default = App;
 
