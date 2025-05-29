@@ -32,6 +32,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
             {error && <p style={{ color: 'red'}}>{error}</p>}
             <BookSearch onSearch={fetchBooks} />
             <ul>
+                <hr/>
                 {books.map((book) => (
                     <li key={book.id}>
                         <strong>{book.title}</strong> by {book.author}
@@ -41,6 +42,13 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
                         <button onClick={() => handleDelete(book.id)} style={{marginLeft: "0.5rem"}}>
                             Delete
                         </button>
+                        <br/>
+                        <br/>
+                        <ul>
+                            <li>{book.description}</li>
+                        </ul>
+                        <br/>
+                        <hr/>
                     </li>
                 ))}
             </ul>
