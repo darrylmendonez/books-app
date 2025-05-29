@@ -7,10 +7,13 @@ const App = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const fetchBooks = async () => {
+    const fetchBooks = async (searchQuery = "") => {
+        const url = searchQuery
+            ? `http://localhost:5000/api/books?search=${encodeURIComponent(searchQuery)}`
+            : "http://localhost:5000/api/books";
         setLoading(true);
         try {
-            const res =  await fetch("/api/books");
+            const res =  await fetch(url);
             const data = await res.json();
             setBooks(data);
         } catch (err) {

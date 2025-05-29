@@ -4,7 +4,11 @@ class Api::BooksController < ApplicationController
 
   # GET /books
   def index
-    books = Book.all
+    if params[:search].present?
+      books = Book.search_by_title(params[:search])
+    else
+      books = Book.all
+    end
     render json: books
   end
 

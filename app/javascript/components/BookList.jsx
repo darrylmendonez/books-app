@@ -1,19 +1,8 @@
 import React, { useEffect, useState } from "react";
+import BookSearch from "./BookSearch";
 
 export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        fetch('/api/books')
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch books');
-                }
-                return response.json();
-            })
-            .then((data) => setBooks(data))
-            .catch((err) => setError(err.message));
-    }, [])
 
     const handleDelete = async  (id) => {
         console.log("Deleting book with ID:", id);
@@ -25,7 +14,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
         })
             .then((response) => {
                 fetchBooks(); // Refresh the list
-                console.log(`Book with ${id} has been deleted`);
+                console.log(`Book id: ${id} has been deleted`);
             })
             .catch((err) => {
                 setError(err.message)
@@ -41,6 +30,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
         <div>
             <h2>All Books</h2>
             {error && <p style={{ color: 'red'}}>{error}</p>}
+            <BookSearch onSearch={fetchBooks} />
             <ul>
                 {books.map((book) => (
                     <li key={book.id}>
