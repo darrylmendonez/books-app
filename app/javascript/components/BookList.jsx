@@ -5,7 +5,6 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
     const [error, setError] = useState(null);
 
     const handleDelete = async  (id) => {
-        console.log("Deleting book with ID:", id);
         fetch(`/api/books/${id}`, {
             method: 'DELETE',
             headers: {
@@ -13,8 +12,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
             },
         })
             .then((response) => {
-                fetchBooks(); // Refresh the list
-                console.log(`Book id: ${id} has been deleted`);
+                fetchBooks(); // Refresh the lis
             })
             .catch((err) => {
                 setError(err.message)

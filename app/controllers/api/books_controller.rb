@@ -1,6 +1,6 @@
 class Api::BooksController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  before_action only: [:show, :update, :destroy]
+  skip_before_action :verify_authenticity_token # disables CSRF protection since React is not using Rails forms and will not generate a valid token. We are only serving JSON-only endpoints, not html views
+  before_action :set_book, only: [:show, :update, :destroy] # finds the book by ID and assigns it to @book
 
   # GET /books
   def index
@@ -14,11 +14,7 @@ class Api::BooksController < ApplicationController
 
   # GET /books/1
   def show
-    @books = Book.all
-    respond_to? do |format|
-      format.html
-      format.json {render json: @books}
-    end
+    render json: @book
   end
 
   # POST /books
@@ -33,7 +29,6 @@ class Api::BooksController < ApplicationController
 
   # PATCH/PUT /books/1
   def update
-    @book = Book.find(params[:id])
     if @book.update(book_params)
       render json: @book
     else
@@ -43,7 +38,6 @@ class Api::BooksController < ApplicationController
 
   # DELETE /books/1
   def destroy
-    @book = Book.find(params[:id])
     @book.destroy
     head :no_content
     rescue
@@ -52,8 +46,14 @@ class Api::BooksController < ApplicationController
 
   private
 
-    def book_params
+    def book_params # uses strong parameters to whitelist permitted book fields
       params.require(:book).permit(:title, :author, :description)
     end
+
+  def set_book
+    @book = Book.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Book not found"}, status:  :not_found
+  end
 
 end

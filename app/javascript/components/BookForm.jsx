@@ -24,11 +24,9 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
         setErrors(null);
 
         const method = book ? 'PATCH' : 'POST'
-        console.log('method: ', method);
         const url = book
             ? `/api/books/${book.id}`
             : '/api/books/';
-        console.log('url: ', url);
         const payload = {
             book:
                 {

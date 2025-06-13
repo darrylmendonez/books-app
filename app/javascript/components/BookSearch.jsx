@@ -4,7 +4,6 @@ export default function BookSearch({ onSearch }) {
     const [query, setQuery] = useState("");
 
     const handleSearch = () => {
-        console.log('handleSearch fired');
         onSearch(query)
     };
 

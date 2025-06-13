@@ -23567,7 +23567,6 @@
   function BookSearch({ onSearch }) {
     const [query, setQuery] = (0, import_react.useState)("");
     const handleSearch = () => {
-      console.log("handleSearch fired");
       onSearch(query);
     };
     return /* @__PURE__ */ import_react.default.createElement("div", null, /* @__PURE__ */ import_react.default.createElement(
@@ -23585,7 +23584,6 @@
   var BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
     const [error, setError] = (0, import_react2.useState)(null);
     const handleDelete = async (id) => {
-      console.log("Deleting book with ID:", id);
       fetch(`/api/books/${id}`, {
         method: "DELETE",
         headers: {
@@ -23593,7 +23591,6 @@
         }
       }).then((response) => {
         fetchBooks();
-        console.log(`Book id: ${id} has been deleted`);
       }).catch((err) => {
         setError(err.message);
         console.error(`Delete error: ${err}`);
@@ -23627,9 +23624,7 @@
       setSubmitting(true);
       setErrors(null);
       const method = book ? "PATCH" : "POST";
-      console.log("method: ", method);
       const url = book ? `/api/books/${book.id}` : "/api/books/";
-      console.log("url: ", url);
       const payload = {
         book: {
           title,
@@ -23713,7 +23708,6 @@
   var App_default = App;
 
   // app/javascript/application.js
-  console.log("applications.js fired");
   var rootElement = document.getElementById("root");
   var root = (0, import_client.createRoot)(rootElement);
   root.render(/* @__PURE__ */ import_react5.default.createElement(App_default, null));
