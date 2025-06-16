@@ -1096,7 +1096,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect4(create, deps) {
+          function useEffect3(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1108,7 +1108,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useLayoutEffect(create, deps);
           }
-          function useCallback(callback, deps) {
+          function useCallback2(callback, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useCallback(callback, deps);
           }
@@ -1875,11 +1875,11 @@
           exports.memo = memo;
           exports.startTransition = startTransition;
           exports.unstable_act = act;
-          exports.useCallback = useCallback;
+          exports.useCallback = useCallback2;
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect4;
+          exports.useEffect = useEffect3;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
@@ -23581,27 +23581,39 @@
   }
 
   // app/javascript/components/BookList.jsx
-  var BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
+  var BooksList = ({
+    books,
+    fetchBooks,
+    setBooks,
+    setSelectedBook,
+    sortBy,
+    setSortBy,
+    sortDir,
+    setSortDir
+  }) => {
     const [error, setError] = (0, import_react2.useState)(null);
     const handleDelete = async (id) => {
       if (!window.confirm("Are you sure you want to delete this book?"))
         return;
-      fetch(`/api/books/${id}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json"
+      try {
+        const response = await fetch(`/api/books/${id}`, {
+          method: "DELETE",
+          headers: { Accept: "application/json" }
+        });
+        if (response.ok) {
+          fetchBooks();
+        } else {
+          setError("Failed to delete book");
         }
-      }).then((response) => {
-        fetchBooks();
-      }).catch((err) => {
+      } catch (err) {
         setError(err.message);
         console.error(`Delete error: ${err}`);
-      });
+      }
     };
     const handleEdit = (book) => {
       setSelectedBook(book);
     };
-    return /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "All Books"), error && /* @__PURE__ */ import_react2.default.createElement("p", { style: { color: "red" } }, error), /* @__PURE__ */ import_react2.default.createElement(BookSearch, { onSearch: fetchBooks }), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: true }, "Sort"), /* @__PURE__ */ import_react2.default.createElement("ul", null, /* @__PURE__ */ import_react2.default.createElement("hr", null), books.map((book) => /* @__PURE__ */ import_react2.default.createElement("li", { key: book.id }, /* @__PURE__ */ import_react2.default.createElement("strong", null, book.title), " by ", book.author, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => handleEdit(book), style: { marginLeft: "1rem" } }, "Edit"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => handleDelete(book.id), style: { marginLeft: "0.5rem" } }, "Delete"), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("ul", null, /* @__PURE__ */ import_react2.default.createElement("li", null, book.description)), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("hr", null)))));
+    return /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("h2", null, "All Books"), error && /* @__PURE__ */ import_react2.default.createElement("p", { style: { color: "red" } }, error), /* @__PURE__ */ import_react2.default.createElement(BookSearch, { onSearch: fetchBooks }), /* @__PURE__ */ import_react2.default.createElement("div", { style: { display: "flex", gap: "1rem", marginBottom: "1rem" } }, /* @__PURE__ */ import_react2.default.createElement("label", null, "Sort by:", " ", /* @__PURE__ */ import_react2.default.createElement("select", { value: sortBy, onChange: (e) => setSortBy(e.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "title" }, "Title"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "author" }, "Author"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "created_at" }, "Date Created"))), /* @__PURE__ */ import_react2.default.createElement("label", null, "Direction:", " ", /* @__PURE__ */ import_react2.default.createElement("select", { value: sortDir, onChange: (e) => setSortDir(e.target.value) }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "asc" }, "Ascending"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "desc" }, "Descending")))), /* @__PURE__ */ import_react2.default.createElement("ul", null, /* @__PURE__ */ import_react2.default.createElement("hr", null), books.map((book) => /* @__PURE__ */ import_react2.default.createElement("li", { key: book.id }, /* @__PURE__ */ import_react2.default.createElement("strong", null, book.title), " by ", book.author, /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => handleEdit(book), style: { marginLeft: "1rem" } }, "Edit"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: () => handleDelete(book.id), style: { marginLeft: "0.5rem" } }, "Delete"), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("ul", null, /* @__PURE__ */ import_react2.default.createElement("li", null, book.description)), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("hr", null)))));
   };
 
   // app/javascript/components/BookForm.jsx
@@ -23613,9 +23625,6 @@
     const [errors, setErrors] = (0, import_react3.useState)({});
     const [submitting, setSubmitting] = (0, import_react3.useState)(false);
     const [success, setSuccess] = (0, import_react3.useState)(false);
-    (0, import_react3.useEffect)(() => {
-      console.log("success: --> ", success);
-    }, [success]);
     (0, import_react3.useEffect)(() => {
       setTitle(book?.title || "");
       setAuthor(book?.author || "");
@@ -23709,8 +23718,17 @@
     const [books, setBooks] = (0, import_react4.useState)([]);
     const [selectedBook, setSelectedBook] = (0, import_react4.useState)(null);
     const [loading, setLoading] = (0, import_react4.useState)(false);
-    const fetchBooks = async (searchQuery = "") => {
-      const url = searchQuery ? `http://localhost:5000/api/books?search=${encodeURIComponent(searchQuery)}` : "http://localhost:5000/api/books";
+    const [sortBy, setSortBy] = (0, import_react4.useState)("title");
+    const [sortDir, setSortDir] = (0, import_react4.useState)("asc");
+    const fetchBooks = (0, import_react4.useCallback)(async (searchQuery = "") => {
+      let url = "http://localhost:5000/api/books";
+      const queryParams = new URLSearchParams();
+      if (searchQuery)
+        queryParams.append("search", searchQuery);
+      queryParams.append("sort", sortBy);
+      queryParams.append("direction", sortDir);
+      url += `?${queryParams.toString()}`;
+      console.log("Fetching:", url);
       setLoading(true);
       try {
         const res = await fetch(url);
@@ -23721,11 +23739,33 @@
       } finally {
         setLoading(false);
       }
-    };
+    }, [sortBy, sortDir]);
     (0, import_react4.useEffect)(() => {
       fetchBooks();
     }, []);
-    return /* @__PURE__ */ import_react4.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react4.default.createElement("h1", null, "Book CRUD App"), loading ? /* @__PURE__ */ import_react4.default.createElement("p", null, "Loading books...") : /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(BookForm, { book: selectedBook, fetchBooks, setSelectedBook }), /* @__PURE__ */ import_react4.default.createElement(BooksList, { books, fetchBooks, setBooks, setSelectedBook })));
+    (0, import_react4.useEffect)(() => {
+      fetchBooks();
+    }, [sortBy, sortDir]);
+    return /* @__PURE__ */ import_react4.default.createElement("div", { style: { padding: "1rem" } }, /* @__PURE__ */ import_react4.default.createElement("h1", null, "Book CRUD App"), loading ? /* @__PURE__ */ import_react4.default.createElement("p", null, "Loading books...") : /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(
+      BookForm,
+      {
+        book: selectedBook,
+        fetchBooks,
+        setSelectedBook
+      }
+    ), /* @__PURE__ */ import_react4.default.createElement(
+      BooksList,
+      {
+        books,
+        fetchBooks,
+        setBooks,
+        setSelectedBook,
+        sortBy,
+        setSortBy,
+        sortDir,
+        setSortDir
+      }
+    )));
   };
   var App_default = App;
 

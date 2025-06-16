@@ -1,25 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BookSearch from "./BookSearch";
 
-export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
+export const BooksList = ({
+                              books,
+                              fetchBooks,
+                              setBooks,
+                              setSelectedBook,
+                              sortBy,
+                              setSortBy,
+                              sortDir,
+                              setSortDir,
+}) => {
     const [error, setError] = useState(null);
 
-    const handleDelete = async  (id) => {
+    const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this book?")) return;
-        fetch(`/api/books/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Accept: 'application/json',
-            },
-        })
-            .then((response) => {
-                fetchBooks(); // Refresh the lis
-            })
-            .catch((err) => {
-                setError(err.message)
-                console.error(`Delete error: ${err}`)
+        try {
+            const response = await fetch(`/api/books/${id}`, {
+                method: 'DELETE',
+                headers: { Accept: 'application/json' },
             });
+
+            if (response.ok) {
+                fetchBooks(); // ✅ use the stable version, no args
+            } else {
+                setError("Failed to delete book");
+            }
+        } catch (err) {
+            setError(err.message);
+            console.error(`Delete error: ${err}`);
+        }
     };
+
 
     const handleEdit = (book) => {
         setSelectedBook(book);
@@ -30,7 +42,24 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
             <h2>All Books</h2>
             {error && <p style={{ color: 'red'}}>{error}</p>}
             <BookSearch onSearch={fetchBooks} />
-            <button onClick >Sort</button>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                <label>
+                    Sort by:{" "}
+                    <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                        <option value="title">Title</option>
+                        <option value="author">Author</option>
+                        <option value="created_at">Date Created</option>
+                    </select>
+                </label>
+
+                <label>
+                    Direction:{" "}
+                    <select value={sortDir} onChange={(e) => setSortDir(e.target.value)}>
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </label>
+            </div>
             <ul>
                 <hr/>
                 {books.map((book) => (

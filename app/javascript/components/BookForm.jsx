@@ -9,10 +9,6 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        console.log('success: --> ', success)
-    }, [success]);
-
-    useEffect(() => {
         setTitle(book?.title || '');
         setAuthor(book?.author || '');
         setDescription(book?.description || '');
@@ -79,7 +75,7 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
                 general: ["Unexpected error occurred"]
             });
         } finally {
-            setSubmitting((false));
+            setSubmitting(false);
         }
     };
 

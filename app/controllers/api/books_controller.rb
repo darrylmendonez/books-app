@@ -7,7 +7,9 @@ class Api::BooksController < ApplicationController
     if params[:search].present?
       books = Book.search_by_title(params[:search])
     else
-      books = Book.all
+      sort_column = %w[title author created_at].include?(params[:sort]) ? params[:sort] : "created_at"
+      sort_direction = %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+      books = Book.order("#{sort_column} #{sort_direction}")
     end
     render json: books
   end
@@ -23,6 +25,7 @@ class Api::BooksController < ApplicationController
     if book.save
       render json: book, status: :created
     else
+      Rails.logger.error(book.errors.full_messages)
       render json: { errors: book.errors }, status: :unprocessable_entity
     end
   end
@@ -32,6 +35,7 @@ class Api::BooksController < ApplicationController
     if @book.update(book_params)
       render json: @book
     else
+      Rails.logger.error(@book.errors.full_messages)
       render json: { errors: book.errors }, status: :unprocessable_entity
     end
   end

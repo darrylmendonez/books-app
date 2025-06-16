@@ -1,19 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { BooksList } from "./BookList"
-import { BookForm } from "./BookForm"
+import React, {useCallback, useEffect, useState} from 'react';
+import {BooksList} from "./BookList"
+import {BookForm} from "./BookForm"
 
 const App = () => {
     const [books, setBooks] = useState([]);
     const [selectedBook, setSelectedBook] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [sortBy, setSortBy] = useState("title");
+    const [sortDir, setSortDir] = useState("asc");
 
-    const fetchBooks = async (searchQuery = "") => {
-        const url = searchQuery
-            ? `http://localhost:5000/api/books?search=${encodeURIComponent(searchQuery)}`
-            : "http://localhost:5000/api/books";
+    const fetchBooks = useCallback(async (searchQuery = "") => {
+        let url = 'http://localhost:5000/api/books';
+        const queryParams = new URLSearchParams();
+        if (searchQuery) queryParams.append("search", searchQuery);
+        queryParams.append("sort", sortBy);
+        queryParams.append("direction", sortDir);
+        url += `?${queryParams.toString()}`;
+        console.log("Fetching:", url);
         setLoading(true);
         try {
-            const res =  await fetch(url);
+            const res = await fetch(url);
             const data = await res.json();
             setBooks(data);
         } catch (err) {
@@ -21,11 +27,15 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [sortBy, sortDir]);
 
     useEffect(() => {
         fetchBooks();
     }, []);
+
+    useEffect(() => {
+        fetchBooks();
+    }, [sortBy, sortDir]);
 
     return (
         <div style={{ padding: "1rem"}}>
@@ -34,8 +44,21 @@ const App = () => {
                 <p>Loading books...</p>
             ) : (
                 <>
-                    <BookForm book={selectedBook} fetchBooks={fetchBooks} setSelectedBook={setSelectedBook}/>
-                    <BooksList books={books} fetchBooks={fetchBooks} setBooks={setBooks} setSelectedBook={setSelectedBook} />
+                    <BookForm
+                        book={selectedBook}
+                        fetchBooks={fetchBooks}
+                        setSelectedBook={setSelectedBook}
+                    />
+                    <BooksList
+                        books={books}
+                        fetchBooks={fetchBooks}
+                        setBooks={setBooks}
+                        setSelectedBook={setSelectedBook}
+                        sortBy={sortBy}
+                        setSortBy={setSortBy}
+                        sortDir={sortDir}
+                        setSortDir={setSortDir}
+                    />
                 </>
             )}
         </div>
