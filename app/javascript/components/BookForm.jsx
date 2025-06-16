@@ -4,7 +4,7 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [description, setDescription] = useState("");
-    const [errors, setErrors] = useState(null);
+    const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -51,12 +51,24 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
                 setAuthor('');
                 setDescription('');
             } else {
-                const data = await res.json();
-                setErrors(data.errors || "Failed to save book");
+                let data;
+                try {
+                    data = await res.json();
+                    const err = typeof data.errors === 'object' ? data.errors : {
+                        general: ["Failed to save book"]
+                    };
+                    setErrors(err);
+                } catch {
+                    setErrors({
+                        general: ["Server returned an unexpected response"]
+                    });
+                }
             }
         } catch (e) {
             console.error("Submission error: ", e)
-            setErrors("Unexpected error occurred");
+            setErrors({
+                general: ["Unexpected error occurred"]
+            });
         } finally {
             setSubmitting((false));
         }
@@ -65,28 +77,37 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     return (
         <form onSubmit={handleSubmit}>
             <h2>{book ? "Edit Book" : "Add Book"}</h2>
-            {errors?.map((error, idx) => <p key={`${error}-${idx}`} style={{ color: 'red' }}>{error}</p>)}
+            {errors?.general?.map((error, idx) => (
+                <p key={`general-${idx}`} style={{ color: 'red' }}>{error}</p>)
+            )}
             <div>
                 <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Title"
-                    required
                 />
+                {errors?.title?.map((error, idx) => (
+                    <p key={`title-${idx}`} style={{ color: 'red' }}>{error}</p>
+                ))}
             </div>
             <div>
                 <input
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     placeholder="Author"
-                    required
                 />
+                {errors?.author?.map((error, idx) => (
+                    <p key={`author-${idx}`} style={{ color: 'red' }}>{error}</p>
+                ))}
             </div>
             <div>
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
+                {errors?.description?.map((error, idx) => (
+                    <p key={`desc-${idx}`} style={{ color: 'red' }}>{error}</p>
+                ))}
             </div>
             <button disabled={submitting} type="submit">{book ? "Update Book" : "Add Book"}</button>
         </form>

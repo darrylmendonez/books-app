@@ -23608,7 +23608,7 @@
     const [title, setTitle] = (0, import_react3.useState)("");
     const [author, setAuthor] = (0, import_react3.useState)("");
     const [description, setDescription] = (0, import_react3.useState)("");
-    const [errors, setErrors] = (0, import_react3.useState)(null);
+    const [errors, setErrors] = (0, import_react3.useState)({});
     const [submitting, setSubmitting] = (0, import_react3.useState)(false);
     (0, import_react3.useEffect)(() => {
       setTitle(book?.title || "");
@@ -23647,39 +23647,51 @@
           setAuthor("");
           setDescription("");
         } else {
-          const data = await res.json();
-          setErrors(data.errors || "Failed to save book");
+          let data;
+          try {
+            data = await res.json();
+            const err = typeof data.errors === "object" ? data.errors : {
+              general: ["Failed to save book"]
+            };
+            setErrors(err);
+          } catch {
+            setErrors({
+              general: ["Server returned an unexpected response"]
+            });
+          }
         }
       } catch (e2) {
         console.error("Submission error: ", e2);
-        setErrors("Unexpected error occurred");
+        setErrors({
+          general: ["Unexpected error occurred"]
+        });
       } finally {
         setSubmitting(false);
       }
     };
-    return /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react3.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), errors?.map((error, idx) => /* @__PURE__ */ import_react3.default.createElement("p", { key: `${error}-${idx}`, style: { color: "red" } }, error)), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
+    return /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react3.default.createElement("h2", null, book ? "Edit Book" : "Add Book"), errors?.general?.map(
+      (error, idx) => /* @__PURE__ */ import_react3.default.createElement("p", { key: `general-${idx}`, style: { color: "red" } }, error)
+    ), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
       "input",
       {
         value: title,
         onChange: (e) => setTitle(e.target.value),
-        placeholder: "Title",
-        required: true
+        placeholder: "Title"
       }
-    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
+    ), errors?.title?.map((error, idx) => /* @__PURE__ */ import_react3.default.createElement("p", { key: `title-${idx}`, style: { color: "red" } }, error))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
       "input",
       {
         value: author,
         onChange: (e) => setAuthor(e.target.value),
-        placeholder: "Author",
-        required: true
+        placeholder: "Author"
       }
-    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
+    ), errors?.author?.map((error, idx) => /* @__PURE__ */ import_react3.default.createElement("p", { key: `author-${idx}`, style: { color: "red" } }, error))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: description,
         onChange: (e) => setDescription(e.target.value)
       }
-    )), /* @__PURE__ */ import_react3.default.createElement("button", { disabled: submitting, type: "submit" }, book ? "Update Book" : "Add Book"));
+    ), errors?.description?.map((error, idx) => /* @__PURE__ */ import_react3.default.createElement("p", { key: `desc-${idx}`, style: { color: "red" } }, error))), /* @__PURE__ */ import_react3.default.createElement("button", { disabled: submitting, type: "submit" }, book ? "Update Book" : "Add Book"));
   };
 
   // app/javascript/components/App.jsx
