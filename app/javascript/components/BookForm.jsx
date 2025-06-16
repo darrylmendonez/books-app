@@ -6,6 +6,11 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
     const [description, setDescription] = useState("");
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        console.log('success: --> ', success)
+    }, [success]);
 
     useEffect(() => {
         setTitle(book?.title || '');
@@ -46,10 +51,14 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
             });
 
             if (res.ok) {
-                handleBookSaved();
                 setTitle('');
                 setAuthor('');
                 setDescription('');
+                setSuccess(true);
+                setTimeout(() => {
+                    setSuccess(false);
+                    handleBookSaved();
+                }, 3000);
             } else {
                 let data;
                 try {
@@ -110,6 +119,8 @@ export const BookForm = ({ book, fetchBooks, setSelectedBook }) => {
                 ))}
             </div>
             <button disabled={submitting} type="submit">{book ? "Update Book" : "Add Book"}</button>
+            {submitting && <p>Saving book...</p>}
+            {success && <p style={{ color: "green" }}>Book saved!</p>}
         </form>
     )
 }

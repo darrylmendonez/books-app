@@ -5,6 +5,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
     const [error, setError] = useState(null);
 
     const handleDelete = async  (id) => {
+        if (!window.confirm("Are you sure you want to delete this book?")) return;
         fetch(`/api/books/${id}`, {
             method: 'DELETE',
             headers: {
@@ -29,6 +30,7 @@ export const BooksList = ({ books, fetchBooks, setBooks, setSelectedBook }) => {
             <h2>All Books</h2>
             {error && <p style={{ color: 'red'}}>{error}</p>}
             <BookSearch onSearch={fetchBooks} />
+            <button onClick >Sort</button>
             <ul>
                 <hr/>
                 {books.map((book) => (
