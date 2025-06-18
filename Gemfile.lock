@@ -91,6 +91,7 @@ GEM
     connection_pool (2.5.3)
     crass (1.0.6)
     date (3.4.1)
+    diff-lcs (1.6.2)
     erubi (1.13.1)
     execjs (2.10.0)
     ffi (1.17.2-aarch64-linux-gnu)
@@ -201,6 +202,23 @@ GEM
       tilt
     regexp_parser (2.10.0)
     rexml (3.4.1)
+    rspec-core (3.13.4)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-rails (7.1.1)
+      actionpack (>= 7.0)
+      activesupport (>= 7.0)
+      railties (>= 7.0)
+      rspec-core (~> 3.13)
+      rspec-expectations (~> 3.13)
+      rspec-mocks (~> 3.13)
+      rspec-support (~> 3.13)
+    rspec-support (3.13.4)
     rubyzip (2.4.1)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -275,6 +293,7 @@ DEPENDENCIES
   rack-cors
   rails (= 7.0.8)
   react-rails (~> 3.2)
+  rspec-rails
   sass-rails (>= 6)
   selenium-webdriver
   spring
