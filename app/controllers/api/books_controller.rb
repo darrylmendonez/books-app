@@ -36,7 +36,7 @@ class Api::BooksController < ApplicationController
       render json: @book
     else
       Rails.logger.error(@book.errors.full_messages)
-      render json: { errors: book.errors }, status: :unprocessable_entity
+      render json: { errors: @book.errors }, status: :unprocessable_entity
     end
   end
 
